@@ -31,7 +31,7 @@ public class PostController
         return new ResponseEntity<>(createPost, HttpStatus.ACCEPTED);
     }
 
-    @DeleteMapping("/posts/{postId}")
+    @DeleteMapping("/api/posts/{postId}")
     public ResponseEntity<ApiResponse> deletePost(@PathVariable Integer postId, @RequestHeader("Authorization") String jwt) throws Exception
     {
         User reqUser = userService.findUserByJwt(jwt);
@@ -40,7 +40,7 @@ public class PostController
         return new ResponseEntity<ApiResponse>(res, HttpStatus.OK);
     }
 
-    @GetMapping("/posts/{postId}")
+    @GetMapping("/api/posts/{postId}")
     public ResponseEntity<Post> findPostById(@PathVariable Integer postId) throws Exception
     {
         Post post = postService.findPostById(postId);
@@ -48,7 +48,7 @@ public class PostController
         return new ResponseEntity<Post>(post, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/posts/user/{userId}")
+    @GetMapping("/api/posts/user/{userId}")
     public ResponseEntity<List<Post>> findUserPost(@PathVariable Integer userId)
     {
         List<Post> posts = postService.findPostByUserId(userId);
@@ -56,7 +56,7 @@ public class PostController
         return new ResponseEntity<List<Post>>(posts, HttpStatus.OK);
     }
 
-    @GetMapping("/posts")
+    @GetMapping("/api/posts")
     public ResponseEntity<List<Post>> findAllPost()
     {
         List<Post> posts = postService.findAllPost();
@@ -64,7 +64,7 @@ public class PostController
         return new ResponseEntity<List<Post>>(posts, HttpStatus.OK);
     }
 
-    @PutMapping("/posts/save/{postId}")
+    @PutMapping("/api/posts/save/{postId}")
     public ResponseEntity<Post> savedPost(@PathVariable Integer postId, @RequestHeader("Authorization") String jwt) throws Exception
     {
         User reqUser = userService.findUserByJwt(jwt);
