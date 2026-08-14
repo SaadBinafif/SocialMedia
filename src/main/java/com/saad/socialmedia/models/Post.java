@@ -29,7 +29,12 @@ public class Post
     @ManyToOne
     private User user;
 
-    @OneToMany
+    @ManyToMany
+    @JoinTable(
+            name = "post_liked",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private List<User> liked = new ArrayList<>();
 
     private LocalDateTime createdAt;

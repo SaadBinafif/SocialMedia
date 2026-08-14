@@ -4,6 +4,7 @@ import com.saad.socialmedia.Repository.UserRepository;
 import com.saad.socialmedia.Service.UserService;
 import com.saad.socialmedia.config.JwtUtils;
 import com.saad.socialmedia.models.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,9 +15,11 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService
 {
     private final UserRepository userRepository;
-    public UserServiceImpl(UserRepository userRepository)
+    private final PasswordEncoder passwordEncoder;
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder)
     {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -26,8 +29,9 @@ public class UserServiceImpl implements UserService
         newUser.setFirstName(user.getFirstName());
         newUser.setLastName(user.getLastName());
         newUser.setEmail(user.getEmail());
-        newUser.setPassword(user.getPassword());
-        return userRepository.save(user);
+        newUser.setGender(user.getGender());
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(newUser);
     }
 
     @Override
@@ -54,28 +58,28 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public User followUser(Integer userId1, Integer userId2) throws Exception
+    public User followUser(Integer reqUserId, Integer userId2) throws Exception
     {
-        User user1 = findUserById(userId1);
+        User reqUser = findUserById(reqUserId);
         User user2 = findUserById(userId2);
 
         // Prevent self-follow
-        if (userId1.equals(userId2))
+        if (reqUserId.equals(userId2))
         {
             throw new IllegalArgumentException("User cannot follow themselves.");
         }
 
-        if (!user1.getFollowing().contains(userId2)) {
-            user1.getFollowing().add(userId2);
+        if (!reqUser.getFollowing().contains(userId2)) {
+            reqUser.getFollowing().add(user2.getId());
         }
 
-        if (!user2.getFollowers().contains(userId1)) {
-            user2.getFollowers().add(userId1);
+        if (!user2.getFollowers().contains(reqUserId)) {
+            user2.getFollowers().add(reqUser.getId());
         }
 
-        userRepository.save(user1);
+        userRepository.save(reqUser);
         userRepository.save(user2);
-        return user1;
+        return reqUser;
     }
 
     @Override
@@ -88,7 +92,6 @@ public class UserServiceImpl implements UserService
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
         existingUser.setEmail(user.getEmail());
-        existingUser.setPassword(user.getPassword());
         existingUser.setGender(user.getGender());
 
         User updatedUser = userRepository.save(existingUser);
@@ -109,27 +112,25 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public User unfollowUser(Integer userId1, Integer userId2) throws Exception
-    {
-        User user1 = findUserById(userId1);
+    public User unfollowUser(Integer reqUserId, Integer userId2) throws Exception {
+        User reqUser = findUserById(reqUserId);
         User user2 = findUserById(userId2);
 
-        if(userId1.equals(userId2))
-            throw new IllegalArgumentException("User Cannot Unfollow themeselves.");
+        if (reqUserId.equals(userId2)) {
+            throw new IllegalArgumentException("User cannot unfollow themselves.");
+        }
 
-        // Check if user1 is actually following user2
-        if (!user1.getFollowing().contains(userId2))
-        {
+        if (!reqUser.getFollowing().contains(userId2)) {
             throw new IllegalStateException("User is not following this person.");
         }
 
-        user1.getFollowing().remove(userId2);
-        user2.getFollowers().remove(userId1);
+        reqUser.getFollowing().remove(userId2);
+        user2.getFollowers().remove(reqUserId);
 
-        userRepository.save(user1);
+        userRepository.save(reqUser);
         userRepository.save(user2);
 
-        return user1;
+        return reqUser;
     }
 
     @Override

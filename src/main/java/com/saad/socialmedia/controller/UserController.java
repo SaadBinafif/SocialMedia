@@ -29,25 +29,30 @@ public class UserController
         return userService.findUserById(id);
     }
 
-    @PutMapping("/api/users/{id}")
-    public User updateUser(@RequestBody User user, @PathVariable Integer id) throws Exception
+    @PutMapping("/api/users")
+    public User updateUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) throws Exception
     {
-        User updatedUser = userService.updateUser(user, id);
+        User reqUser = userService.findUserByJwt(jwt);
+
+        User updatedUser = userService.updateUser(user, reqUser.getId());
         return updatedUser;
     }
 
-    @PutMapping("/api/users/follow/{id1}/{id2}")
-    public User followUserHandler(@PathVariable Integer id1 ,@PathVariable Integer id2) throws Exception
+    @PutMapping("/api/users/follow/{id2}")
+    public User followUserHandler(@RequestHeader("Authorization") String jwt, @PathVariable Integer id2) throws Exception
     {
-        User user = userService.followUser(id1, id2);
+        User reqUser = userService.findUserByJwt(jwt);
+        User user = userService.followUser(reqUser.getId(), id2);
         return user;
     }
 
-    @PutMapping("/api/users/unfollow/{id1}/{id2}")
-    public User unfollowUserHandler(@PathVariable Integer id1, @PathVariable Integer id2) throws Exception
-    {
-        return userService.unfollowUser(id1, id2);
+    @PutMapping("/api/users/unfollow/{id2}")
+    public User unfollowUserHandler(@RequestHeader("Authorization") String jwt,
+                                    @PathVariable Integer id2) throws Exception {
+        User reqUser = userService.findUserByJwt(jwt);
+        return userService.unfollowUser(reqUser.getId(), id2);
     }
+
 
     @GetMapping("/api/users/search")
     public List<User> searchUsers(@RequestParam("query") String query)
