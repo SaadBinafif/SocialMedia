@@ -3,6 +3,7 @@ package com.saad.socialmedia.Service.Impl;
 import com.saad.socialmedia.Repository.UserRepository;
 import com.saad.socialmedia.Service.UserService;
 import com.saad.socialmedia.config.JwtUtils;
+import com.saad.socialmedia.exception.UserException;
 import com.saad.socialmedia.models.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,13 +42,13 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public User findUserById(Integer id) throws Exception
+    public User findUserById(Integer id) throws UserException
     {
         Optional<User> user = userRepository.findById(id);
         if(user.isPresent())
             return user.get();
 
-        throw new Exception("User Not Found with userId : "+id);
+        throw new UserException("User Not Found with userId : "+id);
     }
 
     @Override
@@ -58,7 +59,7 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public User followUser(Integer reqUserId, Integer userId2) throws Exception
+    public User followUser(Integer reqUserId, Integer userId2) throws UserException
     {
         User reqUser = findUserById(reqUserId);
         User user2 = findUserById(userId2);
@@ -83,11 +84,11 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public User updateUser(User user, Integer id) throws Exception {
+    public User updateUser(User user, Integer id) throws UserException {
         User existingUser = userRepository.findById(id).orElse(null);
 
         if (existingUser==null)
-            throw new Exception("User Not Exist with id : "+id);
+            throw new UserException("User Not Exist with id : "+id);
 
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
@@ -112,7 +113,7 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public User unfollowUser(Integer reqUserId, Integer userId2) throws Exception {
+    public User unfollowUser(Integer reqUserId, Integer userId2) throws UserException {
         User reqUser = findUserById(reqUserId);
         User user2 = findUserById(userId2);
 

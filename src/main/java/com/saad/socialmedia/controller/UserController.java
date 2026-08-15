@@ -1,6 +1,7 @@
 package com.saad.socialmedia.controller;
 
 import com.saad.socialmedia.Service.UserService;
+import com.saad.socialmedia.exception.UserException;
 import com.saad.socialmedia.models.User;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,13 +25,13 @@ public class UserController
     }
 
     @GetMapping("/api/users/{id}")
-    public User getUserById(@PathVariable Integer id) throws Exception
+    public User getUserById(@PathVariable Integer id) throws UserException
     {
         return userService.findUserById(id);
     }
 
     @PutMapping("/api/users")
-    public User updateUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) throws Exception
+    public User updateUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) throws UserException
     {
         User reqUser = userService.findUserByJwt(jwt);
 
@@ -39,7 +40,7 @@ public class UserController
     }
 
     @PutMapping("/api/users/follow/{id2}")
-    public User followUserHandler(@RequestHeader("Authorization") String jwt, @PathVariable Integer id2) throws Exception
+    public User followUserHandler(@RequestHeader("Authorization") String jwt, @PathVariable Integer id2) throws UserException
     {
         User reqUser = userService.findUserByJwt(jwt);
         User user = userService.followUser(reqUser.getId(), id2);
@@ -48,7 +49,7 @@ public class UserController
 
     @PutMapping("/api/users/unfollow/{id2}")
     public User unfollowUserHandler(@RequestHeader("Authorization") String jwt,
-                                    @PathVariable Integer id2) throws Exception {
+                                    @PathVariable Integer id2) throws UserException {
         User reqUser = userService.findUserByJwt(jwt);
         return userService.unfollowUser(reqUser.getId(), id2);
     }
